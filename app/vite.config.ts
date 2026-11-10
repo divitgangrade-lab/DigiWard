@@ -7,6 +7,10 @@ const BASE_PATH = '/DigiWard/';
 // GitHub Pages cannot set response headers, so the production build carries the
 // policy in a meta tag. Development omits it: Vite and React Fast Refresh inject
 // inline scripts that a strict script-src would block.
+//
+// `frame-ancestors` is deliberately absent: browsers ignore it in a meta tag, so
+// including it would only log a console error without preventing framing. See the
+// README for the GitHub Pages header limitation.
 const PRODUCTION_CSP = [
   "default-src 'self'",
   "script-src 'self'",
@@ -17,7 +21,6 @@ const PRODUCTION_CSP = [
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
-  "frame-ancestors 'none'",
 ].join('; ');
 
 export default defineConfig({
