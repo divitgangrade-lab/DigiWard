@@ -1,0 +1,37 @@
+:root {
+  /* Warm paper ground and ink, drawn from a tailor's pattern paper. */
+  --paper: #f4f1ea;
+  --paper-raised: #faf8f3;
+  --paper-sunk: #ebe5d9;
+  --ink: #16130f;
+  --ink-soft: #4f4940;
+  --ink-muted: #625b50;
+  --rule: #d6cec0;
+  --rule-strong: #b3a793;
+  --accent: #8c2f22;
+  --accent-strong: #6f2318;
+  --accent-ink: #fdf7ee;
+  --good: #3f5b3a;
+  --notice: #7a5a1f;
+
+  --font-display: 'Bodoni Moda', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  --font-body: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+
+  /* 4px spacing scale. */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+
+  --measure: 66ch;
+  --shell: 1240px;
+  --rail: 320px;
+  --radius: 2px;
+  --focus: 2px solid var(--accent);
+  --shadow-card: 0 1px 0 rgba(22, 19, 15, 0.06);
+}

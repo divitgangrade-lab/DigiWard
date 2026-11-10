@@ -426,3 +426,8 @@ FodyWeavers.xsd
 
 # Official VS Code C# Dev Kit Extension exclusion
 #*.lscache
+
+# DigiWard build and dependency directories
+node_modules/
+dist/
+*.tsbuildinfo
