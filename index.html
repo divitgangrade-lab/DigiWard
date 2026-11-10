@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
@@ -12,9 +13,11 @@
     <meta name="color-scheme" content="light" />
     <meta name="theme-color" content="#f4f1ea" />
     <!-- Root-relative paths: Vite prepends the /DigiWard/ base exactly once. -->
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="preload" href="/fonts/bodoni-moda-latin.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="icon" href="/DigiWard/favicon.svg" type="image/svg+xml" />
+    <link rel="preload" href="/DigiWard/fonts/bodoni-moda-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/DigiWard/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <script type="module" crossorigin src="/DigiWard/assets/index-CmGfrRSn.js"></script>
+    <link rel="stylesheet" crossorigin href="/DigiWard/assets/index-CCmH8SLN.css">
   </head>
   <body>
     <div id="root"></div>
@@ -24,6 +27,5 @@
         clothes leaves your browser once it runs.
       </p>
     </noscript>
-    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

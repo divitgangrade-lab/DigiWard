@@ -4,7 +4,7 @@
 //
 //   node scripts/make-hero.mjs
 //
-// Output: public/media/hero-fold.png (700 x 855, RGB, no metadata).
+// Output: app/public/media/hero-fold.png (700 x 855, RGB, no metadata).
 
 import { deflateSync } from 'node:zlib';
 import { mkdirSync, writeFileSync } from 'node:fs';
@@ -13,7 +13,7 @@ import { fileURLToPath } from 'node:url';
 
 const WIDTH = 700;
 const HEIGHT = 855;
-const OUT = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'public', 'media', 'hero-fold.png');
+const OUT = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'app', 'public', 'media', 'hero-fold.png');
 
 const CRC_TABLE = (() => {
   const table = new Int32Array(256);

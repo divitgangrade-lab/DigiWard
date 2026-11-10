@@ -38,5 +38,9 @@ export default defineConfig({
   build: {
     target: 'es2022',
     sourcemap: false,
+    // Emitted to <repo>/dist, then copied to the repository root by
+    // scripts/publish-pages.mjs for the branch-based GitHub Pages deployment.
+    outDir: '../dist',
+    emptyOutDir: true,
   },
 });

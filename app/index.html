@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <title>DigiWard: a wardrobe you can search</title>
+    <meta
+      name="description"
+      content="DigiWard is a digital wardrobe: catalogue every garment by fabric, colour, season, formality and fit, filter it by occasion, weather and mood, and keep wear in even rotation."
+    />
+    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#f4f1ea" />
+    <!-- Root-relative paths: Vite prepends the /DigiWard/ base exactly once. -->
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preload" href="/fonts/bodoni-moda-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin />
+  </head>
+  <body>
+    <div id="root"></div>
+    <noscript>
+      <p style="font-family: Georgia, serif; padding: 24px; max-width: 60ch">
+        DigiWard is a client-side wardrobe tool, so it needs JavaScript. Nothing about your
+        clothes leaves your browser once it runs.
+      </p>
+    </noscript>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

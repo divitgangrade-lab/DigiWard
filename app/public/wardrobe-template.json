@@ -1,0 +1,50 @@
+{
+  "$version": 1,
+  "_readme": [
+    "Copy one object per garment. Required: name, category, color, material, formality.",
+    "Valid categories: tops, bottoms, outerwear, dresses, shoes, accessories.",
+    "Valid formality: casual, smart-casual, business, formal.",
+    "Valid weather: hot, mild, cool, cold, wet, windy. Valid moods: minimal, classic, relaxed, sharp, cozy, expressive.",
+    "Wear dates are calendar days in YYYY-MM-DD form. Tags are lowercase slugs that group pieces into outfits.",
+    "Files with mistakes are imported partially: the app lists every item it skipped and why."
+  ],
+  "_fields": {
+    "name": "fill first",
+    "category": "fill first",
+    "color": "fill first",
+    "formality": "fill first",
+    "occasions": "fill first",
+    "weather": "fill first",
+    "moods": "fill first",
+    "fitNotes": "improves suggestions",
+    "material": "improves suggestions",
+    "seasons": "improves suggestions",
+    "tags": "improves suggestions",
+    "wearLog": "improves suggestions",
+    "colorHex": "optional",
+    "care": "optional",
+    "notes": "optional",
+    "image": "optional"
+  },
+  "items": [
+    {
+      "id": "item-001",
+      "name": "Replace with the garment name",
+      "category": "tops",
+      "color": "Replace with the colour",
+      "colorHex": "#8a8177",
+      "material": "Replace with the fibre or weave",
+      "formality": "casual",
+      "fitNotes": "Sleeve, rise, shoulders, and anything that runs small.",
+      "seasons": ["spring"],
+      "weather": ["mild"],
+      "occasions": ["weekend"],
+      "moods": ["relaxed"],
+      "tags": ["outfit-tag"],
+      "wearLog": [],
+      "care": "Wash instructions.",
+      "notes": "Anything worth remembering.",
+      "example": false
+    }
+  ]
+}
