@@ -34,6 +34,14 @@ const splitTags = (value: string): string[] =>
     .map((tag) => tag.trim())
     .filter((tag) => tag.length > 0);
 
+/** New items get a real unique id, so a repeated name can never overwrite one. */
+const createItemId = (): string => {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  return `item-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+};
+
 export function ItemForm({ item, onSave, onCancel }: ItemFormProps) {
   const [name, setName] = useState(item?.name ?? '');
   const [category, setCategory] = useState<Category>(item?.category ?? 'tops');
@@ -79,7 +87,7 @@ export function ItemForm({ item, onSave, onCancel }: ItemFormProps) {
       ...(occasions.length > 0 ? { occasions } : {}),
       ...(moods.length > 0 ? { moods } : {}),
       ...(splitTags(tagText).length > 0 ? { tags: splitTags(tagText) } : {}),
-      ...(item ? { id: item.id } : {}),
+      id: item ? item.id : createItemId(),
       ...(item?.wearLog ? { wearLog: item.wearLog } : {}),
       ...(item?.example ? { example: true } : {}),
     };
@@ -190,6 +198,11 @@ export function ItemForm({ item, onSave, onCancel }: ItemFormProps) {
                 onChange={(event) => setColorHex(event.target.value)}
                 aria-label="Swatch hex value"
                 aria-invalid={errors.get('colorHex') ? true : undefined}
+                aria-describedby={
+                  errors.get('colorHex')
+                    ? 'item-form-colorHex-hint item-form-colorHex-error'
+                    : 'item-form-colorHex-hint'
+                }
                 maxLength={7}
               />
             </div>

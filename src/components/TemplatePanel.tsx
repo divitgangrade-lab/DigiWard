@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { FIELD_GUIDE } from '../domain/template';
 
 interface TemplatePanelProps {
@@ -38,6 +38,7 @@ export function TemplatePanel({
 }: TemplatePanelProps) {
   const [fileMessage, setFileMessage] = useState<string | null>(null);
   const [pending, setPending] = useState<'restore' | 'empty' | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = async (file: File | undefined) => {
     if (!file) return;
@@ -139,13 +140,18 @@ export function TemplatePanel({
               <button type="button" className="button" onClick={onExport}>
                 Export my wardrobe ({itemCount})
               </button>
-              <label className="button button--quiet" htmlFor="import-file">
+              <button
+                type="button"
+                className="button button--quiet"
+                onClick={() => fileInputRef.current?.click()}
+              >
                 Import a JSON file
-              </label>
+              </button>
               <input
+                ref={fileInputRef}
                 id="import-file"
-                className="visually-hidden"
                 type="file"
+                hidden
                 accept=".json,application/json"
                 onChange={(event) => {
                   void handleFile(event.target.files?.[0]);

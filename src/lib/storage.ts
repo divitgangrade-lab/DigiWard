@@ -136,7 +136,8 @@ export const downloadText = (filename: string, contents: string, type = 'applica
   document.body.append(anchor);
   anchor.click();
   anchor.remove();
-  window.setTimeout(() => URL.revokeObjectURL(url), 0);
+  // Give the browser time to start the download before releasing the blob.
+  window.setTimeout(() => URL.revokeObjectURL(url), 1500);
 };
 
 export const templateUrl = (): string => `${import.meta.env.BASE_URL}wardrobe-template.json`;
