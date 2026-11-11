@@ -118,6 +118,22 @@ describe('filterItems', () => {
     ]);
   });
 
+  it('filters by style and audit pile, treating a missing audit as keep', () => {
+    const minimal = makeItem({ id: 'minimal', styles: ['minimalist-classic'] });
+    const street = makeItem({ id: 'street', styles: ['streetwear'], audit: 'sell' });
+    const bareItem = makeItem({ id: 'bare-style' });
+    expect(filterItems([minimal, street, bareItem], { styles: ['minimalist-classic'] }).map((item) => item.id)).toEqual([
+      'minimal',
+    ]);
+    expect(filterItems([minimal, street, bareItem], { audit: ['keep'] }).map((item) => item.id)).toEqual([
+      'minimal',
+      'bare-style',
+    ]);
+    expect(filterItems([minimal, street], { audit: ['sell'] }).map((item) => item.id)).toEqual(['street']);
+    expect(itemSearchText(minimal)).toContain('minimalist');
+    expect(activeFilterCount({ styles: ['minimalist-classic'], audit: ['keep'] })).toBe(2);
+  });
+
   it('counts active narrowing choices', () => {
     expect(activeFilterCount({})).toBe(0);
     expect(activeFilterCount({ query: '  ' })).toBe(0);

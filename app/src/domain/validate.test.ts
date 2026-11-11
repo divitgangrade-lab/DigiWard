@@ -62,6 +62,44 @@ describe('validateWardrobeItem', () => {
     );
   });
 
+  it('accepts style, core, price and audit fields and rounds the price', () => {
+    const result = validateWardrobeItem({
+      ...base,
+      styles: ['minimalist-classic', 'black-tie'],
+      core: true,
+      price: '89.456',
+      audit: 'alter',
+    });
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.item.styles).toEqual(['minimalist-classic', 'black-tie']);
+    expect(result.item.core).toBe(true);
+    expect(result.item.price).toBe(89.46);
+    expect(result.item.audit).toBe('alter');
+  });
+
+  it('rejects invalid style, core, price and audit values', () => {
+    const result = validateWardrobeItem({
+      ...base,
+      styles: ['not-a-style'],
+      core: 'yes',
+      price: -1,
+      audit: 'bin',
+    });
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.issues.map((issue) => issue.field)).toEqual(
+      expect.arrayContaining(['styles', 'core', 'price', 'audit']),
+    );
+  });
+
+  it('rejects external image URLs so the no-third-party-requests promise holds', () => {
+    const result = validateWardrobeItem({ ...base, image: 'https://example.com/shirt.jpg' });
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.issues[0]?.field).toBe('image');
+  });
+
   it('rejects non-object records', () => {
     expect(validateWardrobeItem(null).ok).toBe(false);
     expect(validateWardrobeItem([base]).ok).toBe(false);

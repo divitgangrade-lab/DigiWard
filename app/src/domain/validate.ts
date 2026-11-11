@@ -1,12 +1,15 @@
 import {
+  isAuditPile,
   isCategory,
   isFormality,
   isMood,
   isOccasion,
   isSeason,
   isWeather,
+  type AuditPile,
   type WardrobeItem,
 } from './schema';
+import { isStyle } from './styles';
 import { parseDay } from '../lib/date';
 
 export interface ValidationIssue {
@@ -124,8 +127,10 @@ const readWearLog = (
   return dates.length === 0 ? undefined : dates;
 };
 
-const safeImagePath = (value: string): boolean =>
-  /^[a-z0-9][a-z0-9._/-]*$/i.test(value) || /^https:\/\/[a-z0-9.-]+\.[a-z]{2,}\//i.test(value);
+// Local paths only. The production CSP allows images from this origin, and the
+// privacy copy promises no third-party requests, so an https image would be
+// blocked by the browser and contradict the promise.
+const safeImagePath = (value: string): boolean => /^[a-z0-9][a-z0-9._/-]*$/i.test(value);
 
 const readImage = (raw: Record<string, unknown>, issues: ValidationIssue[]): string | undefined => {
   const value = readText(raw, 'image', issues, { max: 400 });
@@ -133,7 +138,7 @@ const readImage = (raw: Record<string, unknown>, issues: ValidationIssue[]): str
   if (!safeImagePath(value)) {
     issues.push({
       field: 'image',
-      message: 'image must be a relative path such as "media/shirt.jpg" or an https URL.',
+      message: 'image must be a local relative path such as "media/shirt.jpg".',
     });
     return undefined;
   }
@@ -148,6 +153,37 @@ const readColorHex = (raw: Record<string, unknown>, issues: ValidationIssue[]): 
     return undefined;
   }
   return value.toLowerCase();
+};
+
+const readPrice = (raw: Record<string, unknown>, issues: ValidationIssue[]): number | undefined => {
+  const value = raw['price'];
+  if (value === undefined || value === null || value === '') return undefined;
+  const parsed = typeof value === 'number' ? value : Number(String(value).trim());
+  if (!Number.isFinite(parsed) || parsed < 0 || parsed > 1_000_000) {
+    issues.push({ field: 'price', message: 'price must be a number between 0 and 1,000,000.' });
+    return undefined;
+  }
+  return Math.round(parsed * 100) / 100;
+};
+
+const readCore = (raw: Record<string, unknown>, issues: ValidationIssue[]): boolean | undefined => {
+  const value = raw['core'];
+  if (value === undefined || value === null) return undefined;
+  if (typeof value !== 'boolean') {
+    issues.push({ field: 'core', message: 'core must be true or false.' });
+    return undefined;
+  }
+  return value;
+};
+
+const readAudit = (raw: Record<string, unknown>, issues: ValidationIssue[]): AuditPile | undefined => {
+  const value = raw['audit'];
+  if (value === undefined || value === null || value === '') return undefined;
+  if (!isAuditPile(value)) {
+    issues.push({ field: 'audit', message: 'audit must be keep, alter, donate or sell.' });
+    return undefined;
+  }
+  return value;
 };
 
 const slug = (value: string): string =>
@@ -199,6 +235,10 @@ export const validateWardrobeItem = (raw: unknown): ValidationResult => {
   const weather = readList(record, 'weather', isWeather, issues);
   const occasions = readList(record, 'occasions', isOccasion, issues);
   const moods = readList(record, 'moods', isMood, issues);
+  const styles = readList(record, 'styles', isStyle, issues);
+  const core = readCore(record, issues);
+  const price = readPrice(record, issues);
+  const audit = readAudit(record, issues);
   const tags = readTags(record, issues);
   const wearLog = readWearLog(record, issues);
   const idRaw = readText(record, 'id', issues, { max: 64 });
@@ -229,6 +269,10 @@ export const validateWardrobeItem = (raw: unknown): ValidationResult => {
   if (weather !== undefined) item.weather = weather;
   if (occasions !== undefined) item.occasions = occasions;
   if (moods !== undefined) item.moods = moods;
+  if (styles !== undefined) item.styles = styles;
+  if (core !== undefined) item.core = core;
+  if (price !== undefined) item.price = price;
+  if (audit !== undefined) item.audit = audit;
   if (tags !== undefined) item.tags = tags;
   if (wearLog !== undefined) item.wearLog = wearLog;
   if (record['example'] === true) item.example = true;

@@ -2,12 +2,16 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Dialog } from './components/Dialog';
 import { FilterBar } from './components/FilterBar';
 import { CoveragePanel, GapsPanel } from './components/GapsPanel';
+import { GooeyNav } from './components/GooeyNav';
 import HeroVeil from './components/HeroVeil';
 import { ItemCard } from './components/ItemCard';
 import { ItemDialog } from './components/ItemDialog';
 import { ItemForm } from './components/ItemForm';
+import { PlaybookPanel } from './components/PlaybookPanel';
 import { RotationPanel } from './components/RotationPanel';
+import { TargetCursor } from './components/TargetCursor';
 import { TemplatePanel } from './components/TemplatePanel';
+import { presetItem, type CapsulePreset } from './data/presets';
 import { EXAMPLE_ITEMS } from './data/seed';
 import {
   activeFilterCount,
@@ -17,7 +21,8 @@ import {
   type WardrobeQuery,
 } from './domain/filter';
 import { findGaps } from './domain/gaps';
-import type { WardrobeItem } from './domain/schema';
+import { AUDIT_LABELS, type AuditPile, type WardrobeItem } from './domain/schema';
+import { STYLE_LABELS, type StyleId } from './domain/styles';
 import { validateWardrobeFile } from './domain/validate';
 import {
   collectionWearStats,
@@ -28,6 +33,7 @@ import {
   withWearRemoved,
   type WearSummary,
 } from './domain/wear';
+import { useActiveSection } from './hooks/useActiveSection';
 import { useReducedMotion } from './hooks/useReducedMotion';
 import { todayKey } from './lib/date';
 import {
@@ -45,6 +51,16 @@ type DialogState =
   | { kind: 'add' }
   | null;
 
+const NAV_SECTIONS = [
+  { id: 'catalogue', label: 'Wardrobe', href: '#catalogue' },
+  { id: 'rotation', label: 'Rotation', href: '#rotation' },
+  { id: 'gaps', label: 'Gaps', href: '#gaps' },
+  { id: 'playbook', label: 'Playbook', href: '#playbook' },
+  { id: 'template', label: 'Template', href: '#template' },
+] as const;
+
+const SECTION_IDS = NAV_SECTIONS.map((section) => section.id);
+
 export default function App() {
   const [initialLoad] = useState(loadWardrobe);
   const [items, setItems] = useState<WardrobeItem[]>(initialLoad.items);
@@ -54,9 +70,21 @@ export default function App() {
   const [sort, setSort] = useState<SortMode>('recent');
   const [dialog, setDialog] = useState<DialogState>(null);
   const [expandedWears, setExpandedWears] = useState(false);
+  const [navOverride, setNavOverride] = useState<number | null>(null);
   const [today] = useState(() => new Date());
   const searchRef = useRef<HTMLInputElement>(null);
   const reduceMotion = useReducedMotion();
+  const activeSection = useActiveSection(SECTION_IDS);
+  const activeNavIndex =
+    navOverride ??
+    Math.max(
+      0,
+      NAV_SECTIONS.findIndex((section) => section.id === activeSection),
+    );
+
+  useEffect(() => {
+    setNavOverride(null);
+  }, [activeSection]);
 
   useEffect(() => {
     if (status.length === 0) return;
@@ -226,6 +254,50 @@ export default function App() {
     commit(EXAMPLE_ITEMS.map((item) => ({ ...item })), 'Sample catalogue restored.');
   };
 
+  const loadPreset = (preset: CapsulePreset) => {
+    const existingIds = new Set(items.map((item) => item.id));
+    const additions: WardrobeItem[] = [];
+    for (const id of preset.itemIds) {
+      if (existingIds.has(id)) continue;
+      const source = presetItem(id);
+      if (!source) continue;
+      additions.push({
+        ...source,
+        wearLog: [...(source.wearLog ?? [])],
+        tags: [...(source.tags ?? [])],
+        styles: [...(source.styles ?? [])],
+      });
+      existingIds.add(id);
+    }
+    if (additions.length === 0) {
+      setStatus(`Every piece in ${preset.name} is already in the wardrobe.`);
+      return;
+    }
+    const already = preset.itemIds.length - additions.length;
+    commit(
+      [...items, ...additions],
+      `Added ${additions.length} ${additions.length === 1 ? 'piece' : 'pieces'} from ${preset.name}.${already > 0 ? ` ${already} ${already === 1 ? 'was' : 'were'} already here.` : ''}`,
+    );
+  };
+
+  const filterStyle = (style: StyleId) => {
+    setQuery({ styles: [style] });
+    setStatus(`Filtered the catalogue to ${STYLE_LABELS[style]}.`);
+    document.getElementById('catalogue')?.scrollIntoView({
+      behavior: reduceMotion ? 'auto' : 'smooth',
+      block: 'start',
+    });
+  };
+
+  const filterAudit = (pile: AuditPile) => {
+    setQuery({ audit: [pile] });
+    setStatus(`Showing the ${AUDIT_LABELS[pile]} pile.`);
+    document.getElementById('catalogue')?.scrollIntoView({
+      behavior: reduceMotion ? 'auto' : 'smooth',
+      block: 'start',
+    });
+  };
+
   const startEmpty = () => {
     commit([], 'Wardrobe cleared. Add your first piece when you are ready.');
   };
@@ -246,12 +318,14 @@ export default function App() {
             <span className="wordmark__tag">wardrobe index</span>
           </a>
 
-          <nav className="nav" aria-label="Sections">
-            <a href="#catalogue">Wardrobe</a>
-            <a href="#rotation">Rotation</a>
-            <a href="#gaps">Gaps</a>
-            <a href="#template">Template</a>
-          </nav>
+          <div className="masthead__nav">
+            <GooeyNav
+              items={NAV_SECTIONS}
+              activeIndex={activeNavIndex}
+              onChange={(index) => setNavOverride(index)}
+              ariaLabel="Sections"
+            />
+          </div>
 
           <div className="masthead__tools">
             <div className="search">
@@ -519,6 +593,14 @@ export default function App() {
 
         <GapsPanel variant="section" gaps={gaps} onApply={applyGap} />
 
+        <PlaybookPanel
+          items={items}
+          summaries={summaries}
+          onFilterStyle={filterStyle}
+          onFilterAudit={filterAudit}
+          onLoadPreset={loadPreset}
+        />
+
         <TemplatePanel
           itemCount={items.length}
           onImport={importText}
@@ -548,6 +630,7 @@ export default function App() {
             <a href="#catalogue">Wardrobe</a>
             <a href="#rotation">Rotation</a>
             <a href="#gaps">Gaps</a>
+            <a href="#playbook">Playbook</a>
             <a href="#template">Template</a>
             <a href="https://github.com/divitgangrade-lab/DigiWard" rel="noopener noreferrer">
               Source
@@ -565,9 +648,10 @@ export default function App() {
               <p>
                 <strong>Accessibility.</strong> The interface targets WCAG 2.2 AA: keyboard operation
                 throughout, visible focus, 4.5:1 text contrast, labelled fields, native modal dialogs, and a
-                static image instead of the animated hero when reduced motion is requested. Known limitation:
-                the hero canvas is decorative only, and every piece of information it implies is available as
-                text.
+                static image instead of the animated hero when reduced motion is requested. The gooey
+                navigation drops its particles and the target reticle is not rendered under reduced motion;
+                the native cursor is never hidden. Known limitation: the hero canvas is decorative only, and
+                every piece of information it implies is available as text.
               </p>
               <p>
                 <strong>Disclaimer.</strong> This is a wardrobe organiser, not fashion, financial or shopping
@@ -603,6 +687,8 @@ export default function App() {
           />
         </Dialog>
       ) : null}
+
+      <TargetCursor />
     </div>
   );
 }

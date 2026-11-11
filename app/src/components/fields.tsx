@@ -39,7 +39,7 @@ interface TextFieldProps extends BaseProps {
   maxLength?: number;
   autoFocus?: boolean;
   type?: 'text' | 'search' | 'url';
-  inputMode?: 'text' | 'numeric';
+  inputMode?: 'text' | 'numeric' | 'decimal';
 }
 
 export function TextField({

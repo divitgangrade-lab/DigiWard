@@ -1,0 +1,231 @@
+/* Gooey nav, themed for the DigiWard paper-and-ink palette. */
+
+.gooey-nav {
+  position: relative;
+  display: inline-flex;
+  max-width: 100%;
+  padding: 4px;
+  border-radius: 999px;
+  background: var(--ink);
+  isolation: isolate;
+}
+
+.gooey-nav button,
+.gooey-nav a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.gooey-nav nav {
+  position: relative;
+  display: flex;
+  max-width: 100%;
+}
+
+.gooey-nav ul {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.gooey-nav li {
+  position: relative;
+  border-radius: 999px;
+  color: rgba(244, 241, 234, 0.7);
+  transition: color 0.25s ease;
+}
+
+.gooey-nav li a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 7px 13px;
+  border-radius: 999px;
+  color: inherit;
+  font-size: 0.88rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.gooey-nav li:hover {
+  color: var(--paper);
+}
+
+.gooey-nav li.is-active {
+  color: var(--ink);
+}
+
+.gooey-nav li.is-active::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: 999px;
+  background: var(--paper);
+  opacity: 1;
+  transform: scale(1);
+}
+
+.gooey-nav li:focus-within {
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+.gooey-nav li a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.gooey-nav .effect {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 0;
+  height: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.gooey-nav .effect--text {
+  z-index: 2;
+  color: var(--ink);
+  font-size: 0.88rem;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  white-space: nowrap;
+}
+
+.gooey-nav .effect--text.is-active {
+  opacity: 1;
+}
+
+.gooey-nav .effect--filter {
+  filter: blur(6px) contrast(24) blur(0);
+  mix-blend-mode: lighten;
+}
+
+.gooey-nav .effect--filter::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  border-radius: 999px;
+  background: var(--ink);
+}
+
+.gooey-nav .effect--filter::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: 999px;
+  background: var(--paper);
+  opacity: 0;
+  transform: scale(0);
+}
+
+.gooey-nav .effect--filter.is-active::after {
+  animation: gooey-pill 0.3s ease both;
+}
+
+@keyframes gooey-pill {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.gooey-nav .particle,
+.gooey-nav .point {
+  display: block;
+  width: 16px;
+  height: 16px;
+  border-radius: 100%;
+  transform-origin: center;
+}
+
+.gooey-nav .particle {
+  position: absolute;
+  top: calc(50% - 8px);
+  left: calc(50% - 8px);
+  opacity: 0;
+  animation: gooey-particle var(--time) ease 1 -350ms;
+}
+
+.gooey-nav .point {
+  background: var(--color);
+  opacity: 1;
+  animation: gooey-point var(--time) ease 1 -350ms;
+}
+
+@keyframes gooey-particle {
+  0% {
+    transform: rotate(0deg) translate(var(--start-x), var(--start-y));
+    opacity: 1;
+    animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45);
+  }
+  70% {
+    transform: rotate(calc(var(--rotate) * 0.5)) translate(calc(var(--end-x) * 1.2), calc(var(--end-y) * 1.2));
+    opacity: 1;
+    animation-timing-function: ease;
+  }
+  85% {
+    transform: rotate(calc(var(--rotate) * 0.66)) translate(var(--end-x), var(--end-y));
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(calc(var(--rotate) * 1.2)) translate(calc(var(--end-x) * 0.5), calc(var(--end-y) * 0.5));
+    opacity: 0;
+  }
+}
+
+@keyframes gooey-point {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  25% {
+    transform: scale(calc(var(--scale) * 0.25));
+  }
+  38% {
+    opacity: 1;
+  }
+  65%,
+  85% {
+    transform: scale(var(--scale));
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0);
+    opacity: 0;
+  }
+}
+
+@media (max-width: 1120px) {
+  .gooey-nav {
+    width: 100%;
+  }
+
+  .gooey-nav ul {
+    justify-content: center;
+    gap: 1px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gooey-nav .effect--filter.is-active::after {
+    animation: none;
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .gooey-nav .particle {
+    display: none;
+  }
+}

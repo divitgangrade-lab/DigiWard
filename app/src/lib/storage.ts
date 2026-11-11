@@ -31,6 +31,24 @@ const storageAvailable = (): boolean => {
 const exampleCopy = (): WardrobeItem[] => EXAMPLE_ITEMS.map((item) => ({ ...item }));
 
 /**
+ * Older saves predate the style, core, price and audit fields. For the built-in
+ * examples only, fill in details that are missing while preserving every field
+ * the visitor has edited. User-entered pieces are never touched.
+ */
+const withMissingSampleDetails = (item: WardrobeItem): WardrobeItem => {
+  if (item.example !== true) return item;
+  const seed = EXAMPLE_ITEMS.find((entry) => entry.id === item.id);
+  if (!seed) return item;
+  return {
+    ...item,
+    ...(item.styles === undefined && seed.styles !== undefined ? { styles: [...seed.styles] } : {}),
+    ...(item.core === undefined && seed.core !== undefined ? { core: seed.core } : {}),
+    ...(item.price === undefined && seed.price !== undefined ? { price: seed.price } : {}),
+    ...(item.audit === undefined && seed.audit !== undefined ? { audit: seed.audit } : {}),
+  };
+};
+
+/**
  * Reads the saved wardrobe. A corrupt or outdated save is never thrown away
  * silently: the app falls back to the sample catalogue and says so.
  */
@@ -75,7 +93,7 @@ export const loadWardrobe = (): LoadOutcome => {
       };
     }
     return {
-      items: file.items,
+      items: file.items.map(withMissingSampleDetails),
       origin: 'browser',
       storageAvailable: true,
       ...(file.skipped > 0

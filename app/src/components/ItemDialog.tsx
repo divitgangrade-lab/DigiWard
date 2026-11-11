@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import {
+  AUDIT_LABELS,
   CATEGORY_LABELS,
   FORMALITY_LABELS,
   MOOD_LABELS,
@@ -8,9 +9,10 @@ import {
   WEATHER_LABELS,
   type WardrobeItem,
 } from '../domain/schema';
+import { STYLE_LABELS } from '../domain/styles';
 import type { WearSummary } from '../domain/wear';
 import { formatDisplayDate } from '../lib/date';
-import { resolveImage, swatchFor, wearSentence } from '../lib/format';
+import { costPerWear, formatAmount, resolveImage, swatchFor, wearSentence } from '../lib/format';
 import { CategoryGlyph } from './CategoryGlyph';
 
 interface ItemDialogProps {
@@ -28,6 +30,7 @@ const joinLabels = <T extends string>(values: readonly T[] | undefined, labels: 
 export function ItemDialog({ item, summary, onClose, onEdit, onLogWear, onRemove }: ItemDialogProps) {
   const [confirming, setConfirming] = useState(false);
   const image = resolveImage(item.image, import.meta.env.BASE_URL);
+  const cpw = costPerWear(item.price, summary.totalWears);
 
   const rows: { label: string; value: string | undefined }[] = [
     { label: 'Category', value: CATEGORY_LABELS[item.category] },
@@ -38,6 +41,14 @@ export function ItemDialog({ item, summary, onClose, onEdit, onLogWear, onRemove
     { label: 'Weather', value: joinLabels(item.weather, WEATHER_LABELS) || undefined },
     { label: 'Occasions', value: joinLabels(item.occasions, OCCASION_LABELS) || undefined },
     { label: 'Mood', value: joinLabels(item.moods, MOOD_LABELS) || undefined },
+    { label: 'Style', value: joinLabels(item.styles, STYLE_LABELS) || undefined },
+    { label: 'Core basic', value: item.core === true ? 'Yes, a carry-over piece' : undefined },
+    { label: 'Audit', value: AUDIT_LABELS[item.audit ?? 'keep'] },
+    { label: 'Paid', value: item.price === undefined ? undefined : formatAmount(item.price) },
+    {
+      label: 'Cost per wear',
+      value: cpw === null ? (item.price === undefined ? undefined : 'Not worn yet') : formatAmount(cpw),
+    },
     { label: 'Fit', value: item.fitNotes },
     { label: 'Care', value: item.care },
     { label: 'Notes', value: item.notes },

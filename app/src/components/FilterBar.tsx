@@ -17,6 +17,7 @@ import {
   SEASON_LABELS,
   WEATHER,
   WEATHER_LABELS,
+  type AuditPile,
   type Category,
   type Formality,
   type Mood,
@@ -24,6 +25,8 @@ import {
   type Season,
   type Weather,
 } from '../domain/schema';
+import type { StyleId } from '../domain/styles';
+import { AUDIT_OPTIONS, STYLE_OPTIONS } from '../domain/options';
 import { SORT_MODES, type SortMode } from '../lib/sort';
 import { SelectField } from './fields';
 
@@ -119,6 +122,16 @@ export function FilterBar({
           options={labelOptions(FORMALITY, FORMALITY_LABELS)}
           className="field--filter"
         />
+        <SelectField<StyleId>
+          id="filter-style"
+          label="Style"
+          includeEmpty
+          emptyLabel="Any style"
+          value={query.styles?.[0] ?? ''}
+          onChange={(value) => onChange({ styles: value === '' ? [] : [value as StyleId] })}
+          options={STYLE_OPTIONS}
+          className="field--filter"
+        />
         <SelectField<Season>
           id="filter-season"
           label="Season"
@@ -137,6 +150,16 @@ export function FilterBar({
           value={query.tags?.[0] ?? ''}
           onChange={(value) => onChange({ tags: value === '' ? [] : [value] })}
           options={tags.map((tag) => ({ value: tag.tag, label: `${tag.tag} (${tag.count})` }))}
+          className="field--filter"
+        />
+        <SelectField<AuditPile>
+          id="filter-audit"
+          label="Audit"
+          includeEmpty
+          emptyLabel="Any pile"
+          value={query.audit?.[0] ?? ''}
+          onChange={(value) => onChange({ audit: value === '' ? [] : [value as AuditPile] })}
+          options={AUDIT_OPTIONS}
           className="field--filter"
         />
         <SelectField<SortMode>

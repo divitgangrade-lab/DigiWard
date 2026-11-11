@@ -1,5 +1,6 @@
 import type { WardrobeItem } from '../domain/schema';
 import { CATEGORY_LABELS, FORMALITY_LABELS } from '../domain/schema';
+import { STYLE_LABELS } from '../domain/styles';
 import type { WearSummary } from '../domain/wear';
 import { resolveImage, swatchFor, wearSentence } from '../lib/format';
 import { CategoryGlyph } from './CategoryGlyph';
@@ -37,6 +38,20 @@ export function ItemCard({ item, summary, onOpen, onLogWear }: ItemCardProps) {
           {item.name}
         </h3>
 
+        {item.core === true || (item.styles ?? []).length > 0 ? (
+          <p className="item-card__styles">
+            {item.core === true ? <span className="chip chip--core">Core basic</span> : null}
+            {(item.styles ?? []).slice(0, 2).map((style) => (
+              <span className="chip" key={style}>
+                {STYLE_LABELS[style]}
+              </span>
+            ))}
+            {(item.styles ?? []).length > 2 ? (
+              <span className="chip chip--quiet">+{(item.styles ?? []).length - 2}</span>
+            ) : null}
+          </p>
+        ) : null}
+
         <dl className="item-card__facts">
           <div>
             <dt>Colour</dt>
@@ -63,7 +78,12 @@ export function ItemCard({ item, summary, onOpen, onLogWear }: ItemCardProps) {
         <p className="item-card__wear">{wearSentence(summary)}</p>
 
         <div className="item-card__actions">
-          <button type="button" className="button button--primary button--small" onClick={() => onLogWear(item.id)}>
+          <button
+            type="button"
+            className="button button--primary button--small"
+            onClick={() => onLogWear(item.id)}
+            aria-label={`Log ${item.name} as worn today`}
+          >
             Wore it today
           </button>
           <button

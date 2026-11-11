@@ -6,6 +6,8 @@
  * saved wardrobe is a single JSON list with nothing else to join.
  */
 
+import type { StyleId } from './styles';
+
 export const CATEGORIES = ['tops', 'bottoms', 'outerwear', 'dresses', 'shoes', 'accessories'] as const;
 export type Category = (typeof CATEGORIES)[number];
 
@@ -23,6 +25,16 @@ export type Mood = (typeof MOODS)[number];
 
 export const FORMALITY = ['casual', 'smart-casual', 'business', 'formal'] as const;
 export type Formality = (typeof FORMALITY)[number];
+
+export const AUDIT_PILES = ['keep', 'alter', 'donate', 'sell'] as const;
+export type AuditPile = (typeof AUDIT_PILES)[number];
+
+export const AUDIT_LABELS: Record<AuditPile, string> = {
+  keep: 'Keep',
+  alter: 'Alter',
+  donate: 'Donate',
+  sell: 'Sell',
+};
 
 export const FORMALITY_RANK: Record<Formality, number> = {
   casual: 1,
@@ -50,6 +62,14 @@ export interface WardrobeItem {
   weather?: Weather[];
   occasions?: Occasion[];
   moods?: Mood[];
+  /** Aesthetics and dress codes, separate from formality. */
+  styles?: StyleId[];
+  /** True when this is a carry-over basic rather than a statement piece. */
+  core?: boolean;
+  /** What it cost, in your own currency. Stored as a plain number. */
+  price?: number;
+  /** The 4-pile closet audit. Missing means keep. */
+  audit?: AuditPile;
   /** Outfit combinations this piece belongs to, e.g. "winter-evening". */
   tags?: string[];
   /** ISO calendar dates (YYYY-MM-DD), one entry per day worn. */
@@ -138,3 +158,6 @@ export const isMood = (value: unknown): value is Mood =>
 
 export const isFormality = (value: unknown): value is Formality =>
   typeof value === 'string' && (FORMALITY as readonly string[]).includes(value);
+
+export const isAuditPile = (value: unknown): value is AuditPile =>
+  typeof value === 'string' && (AUDIT_PILES as readonly string[]).includes(value);

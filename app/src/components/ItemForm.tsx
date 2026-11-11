@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState, type FormEvent } from 'react';
 import {
   CATEGORY_LABELS,
+  type AuditPile,
   type Category,
   type Formality,
   type Mood,
@@ -9,8 +10,10 @@ import {
   type WardrobeItem,
   type Weather,
 } from '../domain/schema';
+import type { StyleId } from '../domain/styles';
 import { toggleValue } from '../domain/filter';
 import {
+  AUDIT_OPTIONS,
   CATEGORY_OPTIONS,
   FORMALITY_OPTIONS,
   MOOD_OPTIONS,
@@ -21,6 +24,7 @@ import {
 import { validateWardrobeItem, type ValidationIssue } from '../domain/validate';
 import { swatchFor } from '../lib/format';
 import { CheckboxGroup, SelectField, TextAreaField, TextField } from './fields';
+import { StylePicker } from './StylePicker';
 
 interface ItemFormProps {
   item?: WardrobeItem | undefined;
@@ -57,6 +61,10 @@ export function ItemForm({ item, onSave, onCancel }: ItemFormProps) {
   const [weather, setWeather] = useState<Weather[]>(item?.weather ?? []);
   const [occasions, setOccasions] = useState<Occasion[]>(item?.occasions ?? []);
   const [moods, setMoods] = useState<Mood[]>(item?.moods ?? []);
+  const [styles, setStyles] = useState<StyleId[]>(item?.styles ?? []);
+  const [audit, setAudit] = useState<AuditPile>(item?.audit ?? 'keep');
+  const [core, setCore] = useState(item?.core === true);
+  const [price, setPrice] = useState(item?.price === undefined ? '' : String(item.price));
   const [tagText, setTagText] = useState((item?.tags ?? []).join(', '));
   const [issues, setIssues] = useState<ValidationIssue[]>([]);
   const summaryRef = useRef<HTMLDivElement>(null);
@@ -86,6 +94,10 @@ export function ItemForm({ item, onSave, onCancel }: ItemFormProps) {
       ...(weather.length > 0 ? { weather } : {}),
       ...(occasions.length > 0 ? { occasions } : {}),
       ...(moods.length > 0 ? { moods } : {}),
+      ...(styles.length > 0 ? { styles } : {}),
+      ...(price.trim().length > 0 ? { price: price.trim() } : {}),
+      ...(core ? { core: true } : {}),
+      audit,
       ...(splitTags(tagText).length > 0 ? { tags: splitTags(tagText) } : {}),
       id: item ? item.id : createItemId(),
       ...(item?.wearLog ? { wearLog: item.wearLog } : {}),
@@ -120,6 +132,12 @@ export function ItemForm({ item, onSave, onCancel }: ItemFormProps) {
         Five fields are required. Category, colour, formality, occasion, weather and mood are what outfit
         filtering actually reads, so they are worth getting right first.
       </p>
+      {!item ? (
+        <p className="item-form__check">
+          Before adding: will you wear it at least 30 times, and does it pair with three pieces already in
+          the wardrobe? If either answer is no, leave it on the shelf.
+        </p>
+      ) : null}
 
       {issues.length > 0 ? (
         <div className="form-errors" ref={summaryRef} tabIndex={-1} role="alert">
@@ -258,6 +276,8 @@ export function ItemForm({ item, onSave, onCancel }: ItemFormProps) {
         />
       </fieldset>
 
+      <StylePicker selected={styles} onToggle={(value: StyleId) => setStyles(toggleValue(styles, value))} />
+
       <fieldset className="item-form__group">
         <legend className="item-form__legend">Fit and notes</legend>
         <TextAreaField
@@ -280,6 +300,31 @@ export function ItemForm({ item, onSave, onCancel }: ItemFormProps) {
           hint="Comma separated. Tags group pieces into combinations you already wear."
           error={errors.get('tags')}
         />
+        <div className="form-grid">
+          <SelectField<AuditPile>
+            id="item-form-audit"
+            label="Audit pile"
+            value={audit}
+            onChange={setAudit}
+            options={AUDIT_OPTIONS}
+            hint="Keep, alter for a tailor, donate or sell."
+            error={errors.get('audit')}
+          />
+          <TextField
+            id="item-form-price"
+            label="Price paid"
+            value={price}
+            onChange={setPrice}
+            inputMode="decimal"
+            placeholder="89"
+            hint="Optional, in your own currency. Used for cost per wear."
+            error={errors.get('price')}
+          />
+        </div>
+        <label className="check check--inline">
+          <input type="checkbox" checked={core} onChange={(event) => setCore(event.target.checked)} />
+          <span>Timeless basic (counts toward the 70% core ratio)</span>
+        </label>
         <div className="form-grid">
           <TextField
             id="item-form-care"

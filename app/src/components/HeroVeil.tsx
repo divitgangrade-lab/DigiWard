@@ -3,17 +3,30 @@ import { useReducedMotion } from '../hooks/useReducedMotion';
 
 const DitherVeil = lazy(() => import('./DitherVeil.jsx'));
 
-const heroSrc = `${import.meta.env.BASE_URL}media/hero-fold.png`;
+const mediaBase = `${import.meta.env.BASE_URL}media/`;
+const heroSrc = `${mediaBase}hero-fold-700.webp`;
+const heroSizes = '(max-width: 1120px) 100vw, 40vw';
+const avifSrcSet = [360, 540, 700]
+  .map((width) => `${mediaBase}hero-fold-${width}.avif ${width}w`)
+  .join(', ');
+const webpSrcSet = [360, 540, 700]
+  .map((width) => `${mediaBase}hero-fold-${width}.webp ${width}w`)
+  .join(', ');
 
 const StaticFold = () => (
-  <img
-    className="hero__fold-image"
-    src={heroSrc}
-    alt=""
-    width={900}
-    height={1100}
-    decoding="async"
-  />
+  <picture>
+    <source type="image/avif" srcSet={avifSrcSet} sizes={heroSizes} />
+    <source type="image/webp" srcSet={webpSrcSet} sizes={heroSizes} />
+    <img
+      className="hero__fold-image"
+      src={`${mediaBase}hero-fold.png`}
+      alt=""
+      width={700}
+      height={855}
+      decoding="async"
+      fetchPriority="high"
+    />
+  </picture>
 );
 
 class VeilBoundary extends Component<{ fallback: ReactNode; children: ReactNode }, { failed: boolean }> {

@@ -10,6 +10,18 @@ html {
   scroll-padding-top: 96px;
 }
 
+@media (max-width: 1120px) {
+  html {
+    scroll-padding-top: 210px;
+  }
+}
+
+@media (max-width: 560px) {
+  html {
+    scroll-padding-top: 250px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

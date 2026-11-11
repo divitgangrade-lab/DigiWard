@@ -1,4 +1,5 @@
 import type {
+  AuditPile,
   Category,
   Formality,
   Mood,
@@ -7,6 +8,7 @@ import type {
   WardrobeItem,
   Weather,
 } from './schema';
+import { STYLE_LABELS, type StyleId } from './styles';
 import { wearDates } from './wear';
 
 /** What the catalogue is currently showing. Every field is optional. */
@@ -18,6 +20,8 @@ export interface WardrobeQuery {
   seasons?: readonly Season[];
   moods?: readonly Mood[];
   formality?: readonly Formality[];
+  styles?: readonly StyleId[];
+  audit?: readonly AuditPile[];
   tags?: readonly string[];
   /** Only pieces with no wear history. */
   unwornOnly?: boolean;
@@ -55,6 +59,7 @@ export const itemSearchText = (item: WardrobeItem): string =>
       ...(item.moods ?? []),
       ...(item.seasons ?? []),
       ...(item.weather ?? []),
+      ...(item.styles ?? []).map((style) => STYLE_LABELS[style]),
     ]
       .filter((part) => part.length > 0)
       .join(' '),
@@ -85,6 +90,8 @@ export const matchesFacets = (item: WardrobeItem, query: WardrobeQuery): boolean
   if (!selectsAny(query.weather, item.weather)) return false;
   if (!selectsAny(query.seasons, item.seasons)) return false;
   if (!selectsAny(query.moods, item.moods)) return false;
+  if (!selectsAny(query.styles, item.styles)) return false;
+  if (!selects(query.audit, item.audit ?? 'keep')) return false;
   if (!selectsAny(query.tags, item.tags)) return false;
   if (query.unwornOnly === true && wearDates(item).length > 0) return false;
   return true;
@@ -108,6 +115,8 @@ export const activeFilterCount = (query: WardrobeQuery): number => {
   count += query.seasons?.length ?? 0;
   count += query.moods?.length ?? 0;
   count += query.formality?.length ?? 0;
+  count += query.styles?.length ?? 0;
+  count += query.audit?.length ?? 0;
   count += query.tags?.length ?? 0;
   if (query.unwornOnly === true) count += 1;
   return count;
